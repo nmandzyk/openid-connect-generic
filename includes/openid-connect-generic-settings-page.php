@@ -96,6 +96,13 @@ class OpenID_Connect_Generic_Settings_Page {
 				'type'        => 'text',
 				'section'     => 'client_settings',
 			),
+			'allowed_roles'    => array(
+				'title'       => __( 'Allowed roles' ),
+				'description' => __( 'User\'s roles allowed to login.' ),
+				'example'     => 'Advisor-General',
+				'type'        => 'text',
+				'section'     => 'client_settings',
+			),
 			'identity_key'     => array(
 				'title'       => __( 'Identity Key' ),
 				'description' => __( 'Where in the user claim array to find the user\'s identification data. Possible standard values: preferred_username, name, or sub. If you\'re having trouble, use "sub".' ),

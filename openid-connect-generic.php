@@ -209,6 +209,7 @@ class OpenID_Connect_Generic {
 				// non-standard settings
 				'no_sslverify'    => 0,
 				'http_request_timeout' => 5,
+				'allowed_roles' => 'Advisor-General',
 				'identity_key'    => 'preferred_username',
 				'nickname_key'    => 'preferred_username',
 				'email_format'       => '{email}',

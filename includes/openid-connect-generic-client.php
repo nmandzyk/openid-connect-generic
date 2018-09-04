@@ -342,6 +342,67 @@ class OpenID_Connect_Generic_Client {
 	}
 
 	/**
+	 * Extract the access_token_claim from the token_response
+	 * 
+	 * @param $token_response
+	 *
+	 * @return array|\WP_Error
+	 */
+	function get_access_token_claim( $token_response ){
+		// name sure we have an id_token
+		if ( ! isset( $token_response['access_token'] ) ) {
+			return new WP_Error( 'no-access-token', __( 'No access token' ), $token_response );
+		}
+
+		// break apart the access_token in the response for decoding
+		$tmp = explode( '.', $token_response['access_token'] );
+
+		if ( ! isset( $tmp[1] ) ) {
+			return new WP_Error( 'missing-access-token', __( 'Missing access token' ), $token_response );
+		}
+
+		// Extract the id_token's claims from the token
+		$access_token_claim = json_decode( base64_decode( $tmp[1] ), TRUE );
+		
+		return $access_token_claim;
+	}
+
+	/**
+	 * Ensure the access_token_claim contains the required values
+	 * 
+	 * @param $access_token_claim
+	 * @param $required_roles
+	 *
+	 * @return bool|\WP_Error
+	 */
+	function validate_access_token_claim( $access_token_claim, $required_roles ){
+		if ( ! is_array( $access_token_claim ) ) {
+			return new WP_Error( 'bad-access-token-claim', __( 'Bad Access token claim' ), $access_token_claim );
+		}
+		
+		// make sure we can find our identification data and that it has a value
+		if ( ! isset( $access_token_claim['role'] ) || empty( $access_token_claim['role'] ) ) {
+			return new WP_Error( 'no-required-claims', __( 'No required claims of identity' ), $access_token_claim );
+		}
+
+		// break apart the role's name from the configuration
+		$tmp = explode( ' ', $required_roles );
+
+		if(!is_array($access_token_claim['role'])){
+			return in_array($access_token_claim['role'], $tmp);			
+		}
+		else{
+			foreach($access_token_claim['role'] as $role){
+				if(in_array($role, $tmp)){
+					return true;
+				}
+			}
+		}	 
+		
+		return false;
+	}
+
+	/**
 	 * Attempt to exchange the access_token for a user_claim
 	 * 
 	 * @param $token_response

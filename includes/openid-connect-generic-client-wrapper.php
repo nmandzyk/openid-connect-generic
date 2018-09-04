@@ -321,7 +321,7 @@ class OpenID_Connect_Generic_Client_Wrapper {
 		
 		if ( is_wp_error( $id_token_claim ) ){
 			$this->error_redirect( $id_token_claim );
-		}
+		}		
 		
 		// validate our id_token has required values
 		$valid = $client->validate_id_token_claim( $id_token_claim );
@@ -329,6 +329,29 @@ class OpenID_Connect_Generic_Client_Wrapper {
 		if ( is_wp_error( $valid ) ){
 			$this->error_redirect( $valid );
 		}
+
+		//retrieve access token claims
+		$access_token_claim = $client->get_access_token_claim( $token_response);
+
+		if ( is_wp_error( $access_token_claim ) ){
+			$this->error_redirect( $access_token_claim );
+		}
+
+		// validate our access_token_claim has required values
+		$valid = $client->validate_access_token_claim( $access_token_claim, $this->settings->allowed_roles );
+
+		if ( is_wp_error( $valid ) ){
+			$this->error_redirect( $valid );
+		}
+		
+		$this->logger->log('Result validation '.$valid);
+
+		if($valid === false){
+			$this->error_redirect( new WP_Error( 'access-denied', __( 'You do not have an access to this resource.  Please, contact to our support team.' ) ) );
+		}
+
+		//$this->logger->log('Validation result '.$valid);
+		
 		
 		// exchange the token_response for a user_claim
 		$user_claim = $client->get_user_claim( $token_response );
